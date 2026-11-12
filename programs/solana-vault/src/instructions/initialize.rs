@@ -1,33 +1,33 @@
 use anchor_lang::prelude::*;
-
-use crate::{constants::*, state::Counter};
+use crate::state::Vault;
 
 #[derive(Accounts)]
 pub struct Initialize<'info> {
-    #[account(mut)]
-    pub payer: Signer<'info>,
     #[account(
         init,
-        payer = payer,
-        space = 8 + Counter::INIT_SPACE,
-        seeds = [COUNTER_SEED],
+        payer = authority,
+        space = 8 + Vault::INIT_SPACE,
+        // 种子: "vault" + 用户公钥
+        seeds = [Vault::SEED_PREFIX, authority.key().as_ref()],
         bump
     )]
-    pub counter: Account<'info, Counter>,
+    pub vault: Account<'info, Vault>,
+
+    #[account(mut)]
+    pub authority: Signer<'info>,
+
     pub system_program: Program<'info, System>,
 }
 
 pub fn handle_initialize(ctx: Context<Initialize>) -> Result<()> {
-    ctx.accounts.counter.count = 0;
-    ctx.accounts.counter.authority = ctx.accounts.payer.key();
+let vault = &mut ctx.accounts.vault;
+    let clock = Clock::get()?;
 
-    let cpi_accounts = anchor_lang::system_program::Transfer {
-        from: ctx.accounts.payer.to_account_info(),
-        to: ctx.accounts.counter.to_account_info(),
-    };
-    let cpi_ctx = CpiContext::new(anchor_lang::system_program::ID, cpi_accounts);
-    anchor_lang::system_program::transfer(cpi_ctx, HELLO_WORLD_LAMPORTS)?;
+    vault.authority = ctx.accounts.authority.key();
+    vault.total_deposits = 0;
+    vault.created_at = clock.unix_timestamp;
+    vault.bump = ctx.bumps.vault;
 
-    msg!("Hello, world! Counter initialized");
+    msg!("Vault initialized | Authority: {}", vault.authority);
     Ok(())
 }
