@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use crate::state::Vault;
+use crate::Vault;
 
 #[derive(Accounts)]
 pub struct Initialize<'info> {
@@ -20,7 +20,7 @@ pub struct Initialize<'info> {
 }
 
 pub fn handle_initialize(ctx: Context<Initialize>) -> Result<()> {
-let vault = &mut ctx.accounts.vault;
+    let vault = &mut ctx.accounts.vault;
     let clock = Clock::get()?;
 
     vault.authority = ctx.accounts.authority.key();
