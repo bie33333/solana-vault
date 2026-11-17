@@ -44,7 +44,7 @@ pub fn handle_deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
     vault.total_deposits = vault
     .total_deposits
     .checked_add(amount)
-    .ok_or(ErrorCode::CounterOverflow)?;
+    .ok_or(ErrorCode::Overflow)?;
 
     msg!("Deposited {} lamports into the vault | Total Deposits: {}", amount, vault.total_deposits);
 

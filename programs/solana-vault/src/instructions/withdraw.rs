@@ -8,7 +8,8 @@ pub struct Withdraw<'info> {
     #[account(
         mut,
         seeds=[Vault::SEED_PREFIX, vault.authority.as_ref()],
-        bump=vault.bump
+        bump=vault.bump,
+        has_one = authority//constrain vault.authority == authority.key()
     )]
     pub vault: Account<'info, Vault>,
 
