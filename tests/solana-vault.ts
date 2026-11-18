@@ -59,8 +59,10 @@ describe("solana-vault", () => {
 
     await program.methods
       .deposit(amount)
-      .accounts({
+      .accountsStrict({
+        vault: vaultPda,
         authority: authority,
+        systemProgram: SystemProgram.programId,
       })
       .rpc();
 
@@ -79,7 +81,8 @@ describe("solana-vault", () => {
 
     await program.methods
       .withdraw(amount)
-      .accounts({
+      .accountsStrict({
+        vault: vaultPda,
         authority: authority,
       })
       .rpc();
@@ -104,6 +107,7 @@ describe("solana-vault", () => {
       await program.methods
         .withdraw(amount)
         .accounts({
+          vault: vaultPda,
           authority: attacker.publicKey,
         })
         .signers([attacker])
